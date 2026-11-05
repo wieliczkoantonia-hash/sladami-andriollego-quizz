@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -12,7 +11,6 @@
 body{margin:0;background:var(--paper);color:var(--dark);font-family:"Libre Baskerville",Georgia,serif;line-height:1.7}
 .page{width:min(900px,calc(100% - 32px));margin:35px auto}
 .topline{display:flex;justify-content:space-between;align-items:center;gap:15px;border-bottom:1px solid var(--line);padding-bottom:15px;color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase}
-.back{color:var(--wine);text-decoration:none;letter-spacing:0;text-transform:none}
 .hero{text-align:center;padding:75px 0 45px}
 .eyebrow{color:var(--wine);font-size:12px;letter-spacing:3px;text-transform:uppercase}
 h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif}
@@ -49,28 +47,22 @@ h1{font-size:clamp(45px,8vw,85px);line-height:1;font-weight:500;margin:20px 0}
 </head>
 <body>
 <main class="page">
-<div class="topline">
-<span>Śladami Andriollego</span>
-<a class="back" href="./">← Wróć do mapy</a>
-</div>
+<div class="topline"><span>Śladami Andriollego</span></div>
 <header class="hero">
 <div class="eyebrow">Koniec trasy?</div>
 <h1>I co, poznajesz<br>już Otwock?</h1>
-<p class="intro">Przeszedłeś całą trasę i poznałes naprawdę ciekawe historie. Ale ile z nich udało Ci się zapamiętać?
+<p class="intro">Przeszedłeś całą trasę i naprawdę ciekawe historie. Ale ile z nich udało Ci się zapamiętać?</p>
+</header>
 <section class="quiz-head">
 <h2>No dobra, sprawdźmy, co zapamiętałeś</h2>
 </section>
-<div class="progress-wrap">
-<div class="progress" id="progress"></div>
-</div>
+<div class="progress-wrap"><div class="progress" id="progress"></div></div>
 <section class="question-card" id="question-card">
 <div class="question-number" id="question-number"></div>
 <h3 id="question"></h3>
 <div class="answers" id="answers"></div>
 <div class="feedback" id="feedback"></div>
-<div class="controls">
-<button class="button" id="next" hidden>Następne pytanie →</button>
-</div>
+<div class="controls"><button class="button" id="next" hidden>Następne pytanie →</button></div>
 </section>
 <section class="result" id="result">
 <div class="eyebrow">Quiz zakończony</div>
@@ -83,15 +75,15 @@ h1{font-size:clamp(45px,8vw,85px);line-height:1;font-weight:500;margin:20px 0}
 <script>
 const questions=[
 {q:"W którym roku kolej dotarła do Otwocka?",a:["1867 r.","1877 r.","1887 r.","1897 r."],correct:1,info:"1877 rok. Wtedy do Otwocka dotarła Kolej Nadwiślańska, łącząca miejscowość z Warszawą."},
-{q:"Kto był twórcą związanym z posiadłością Brzegi nad Świdrem?",a:["Jarosław Margierski","Stanisław Witkiewicz","Michał Elwiro Andriolli","Julian Fałat"],correct:2,info:"Michał Elwiro Andriolli, malarz i ilustrator, zamieszkał w posiadłości Brzegi nad Świdrem."},
-{q:"Który budynek jest jednym z najbardziej charakterystycznych przykładów świdermajeru?",a:["Pensjonat Abrama Gurewicza","Piwnica Świdnicka","Zamek Królewski","Belweder"],correct:0,info:"Pensjonat Abrama Gurewicza. Jego drewniana konstrukcja, werandy i dekoracyjne detale nawiązują do stylu świdermajer."},
+{q:"Kto był twórcą związanym z posiadłością Brzegi nad Świdrem?",a:["Józef Chełmoński","Stanisław Witkiewicz","Michał Elwiro Andriolli","Julian Fałat"],correct:2,info:"Michał Elwiro Andriolli, malarz i ilustrator, zamieszkał w posiadłości Brzegi nad Świdrem."},
+{q:"Który budynek jest jednym z najbardziej charakterystycznych przykładów świdermajeru?",a:["Pensjonat Abrama Gurewicza","Pałac Kultury i Nauki","Zamek Królewski","Belweder"],correct:0,info:"Pensjonat Abrama Gurewicza. Jego drewniana konstrukcja, werandy i dekoracyjne detale nawiązują do stylu świdermajer."},
 {q:"W którym roku Otwock otrzymał prawa miejskie?",a:["1905 r.","1910 r.","1916 r.","1924 r."],correct:2,info:"1916 rok. Właśnie wtedy Otwock uzyskał prawa miejskie."},
 {q:"Jak nazywała się posiadłość Michała Elwiro Andriollego nad Świdrem?",a:["Zacisze","Brzegi","Leśniczówka","Zalesie"],correct:1,info:"Brzegi. Taką nazwę nosiła posiadłość artysty położona nad Świdrem."},
-{q:"Jaka rzeka jest szczególnie związana z historią Otwocka i Andriollego?",a:["Wisła","Narew","Świder","Pad"],correct:2,info:"Świder. Nad jego brzegiem znajdowała się posiadłość Andriollego, a okolica z czasem stała się popularnym miejscem wypoczynku."},
+{q:"Jaka rzeka jest szczególnie związana z historią Otwocka i Andriollego?",a:["Wisła","Narew","Świder","Pilica"],correct:2,info:"Świder. Nad jego brzegiem znajdowała się posiadłość Andriollego, a okolica z czasem stała się popularnym miejscem wypoczynku."},
 {q:"Co przyczyniło się do rozwoju Otwocka jako miejscowości letniskowej?",a:["Rozwój kolei i dogodny dojazd z Warszawy","Odkrycie złóż węgla","Powstanie dużego portu","Rozwój przemysłu stoczniowego"],correct:0,info:"Połączenie kolejowe z Warszawą. Dzięki niemu do Otwocka łatwiej docierali mieszkańcy stolicy szukający odpoczynku poza miastem."},
 {q:"Z jakiego materiału najczęściej budowano domy w stylu świdermajer?",a:["Z cegły","Z kamienia","Z betonu","Z drewna"],correct:3,info:"Drewno. Z niego wznoszono charakterystyczne wille i pensjonaty z werandami oraz ozdobnymi elementami."},
 {q:"W jakim celu dawniej przyjeżdżano do Otwocka?",a:["Na wypoczynek i leczenie","Do portu handlowego","Na targi przemysłowe","Do kopalni"],correct:0,info:"Na wypoczynek i leczenie. Otwock słynął z sanatoriów, pensjonatów oraz korzystnego dla zdrowia klimatu."},
-{q:"Co jest charakterystyczne dla architektury świdermajera?",a:["Surowe betonowe bryły","Drewniane werandy i ażurowe zdobienia","Wysokie szklane fasady","Kamienne mury obronne"],correct:1,info:"Drewniane werandy i ażurowe zdobienia. To właśnie te elementy nadają świdermajerom charakterystyczny wygląd."}
+{q:"Co jest charakterystyczne dla architektury świdermajer?",a:["Surowe betonowe bryły","Drewniane werandy i ażurowe zdobienia","Wysokie szklane fasady","Kamienne mury obronne"],correct:1,info:"Drewniane werandy, ozdobne balustrady i ażurowe wykończenia. To właśnie te elementy nadają świdermajerom charakterystyczny wygląd."}
 ];
 let current=0;
 let points=0;
@@ -147,7 +139,7 @@ card.style.display="none";
 result.classList.add("show");
 progress.style.width="100%";
 document.getElementById("score").textContent=`${points}/10`;
-const titles=["Otwock nie ma już przed Tobą wielu tajemnic!","Całkiem nieźle!","Coś już zostało w pamięci, ale Otwock ma jeszcze kilka sekretów.","Chyba nie wszystkie przystanki udało się zapamiętać.","Wygląda na to, że przydałaby się jeszcze jedna wycieczka!"];
+const titles=["Otwock nie ma już przed Tobą wielu tajemnic!","Całkiem nieźle! Widać, że uważnie zwiedzałeś!","Coś już zostało w pamięci, ale Otwock ma jeszcze kilka sekretów.","Chyba nie wszystkie przystanki udało się zapamiętać.","Wygląda na to, że przydałaby się jeszcze jedna wycieczka!"];
 const texts=["Komplet punktów. Wszystko zapamiętane!","Naprawdę dobrze znasz historię miasta.","Większość historii została w pamięci.","Trochę już wiesz, ale kilka rzeczy umknęło.","Otwock chyba ma przed Tobą jeszcze sporo do odkrycia."];
 let tier=points===10?0:points>=8?1:points>=6?2:points>=3?3:4;
 document.getElementById("result-title").textContent=titles[tier];
