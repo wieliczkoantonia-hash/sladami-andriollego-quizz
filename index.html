@@ -2,797 +2,158 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Śladami Andriollego | Z Androllim po Otwocku</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I co, poznajesz już Otwock? | Śladami Andriollego</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
+:root{--paper:#f1eee4;--cream:#fffdf7;--dark:#202a24;--wine:#762f42;--green:#294d3b;--line:#cfcdbb;--muted:#696f65;--pale:#e2e7dc}
 *{box-sizing:border-box}
-body{margin:0;background:#f1eee4;color:#202a24;font-family:"Libre Baskerville",Georgia,"Times New Roman",serif}
-body.map-active{overflow:hidden}
-h1,h2,h3,.brand,.story-title,.story-creative,.panel-header h2,.fact-box h3,.photo-comparison h3,.interactive-center h3,.gurewicz-puzzle h3{font-family:"Cormorant Garamond",Georgia,serif}
-button{font:inherit;cursor:pointer}
-button:focus-visible{outline:3px solid #a06a36;outline-offset:3px}
-.cover{min-height:100vh;display:grid;place-items:center;padding:25px;background:linear-gradient(180deg,#f1eee4,#e7e9df)}
-.cover-inner{width:min(820px,100%);text-align:center;padding:25px 10px}
-.cover-art{width:88px;height:115px;margin:0 auto 4px;display:block}
-.cover h1{margin:14px 0;color:#762f42;font-size:clamp(36px,8vw,66px);font-weight:normal;line-height:1.05}
-.cover-photo{width:min(690px,100%);height:clamp(210px,34vw,370px);margin:12px auto 24px;overflow:hidden;border:1px solid #cfcdbb;background:#e6e0d3;display:grid;place-items:center;padding:8px}
-.cover-photo img{width:100%;height:100%;object-fit:contain}
-.cover-credit{margin:-15px auto 20px;color:#696f65;font:10px/1.5 Arial,sans-serif}
-.cover-credit a{color:#762f42}
-.primary{border:1px solid #762f42;border-radius:3px;padding:12px 17px;background:#762f42;color:white;font:11px Arial,sans-serif;letter-spacing:1px;text-transform:uppercase}
-#map-page{display:none;position:fixed;inset:0;width:100%;height:100vh;height:100dvh;min-height:0;overflow:hidden;flex-direction:column}
-.topbar{position:relative;z-index:500;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;background:#f1eee4;border-bottom:1px solid #cfcdbb;flex-shrink:0}
-.brand{font-size:17px}
-.brand small{display:block;margin-top:4px;color:#696f65;font:10px Arial,sans-serif;letter-spacing:1px}
-.top-actions{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
-.top-actions button{border:1px solid #cfcdbb;border-radius:4px;background:#fffdf7;color:#202a24;padding:9px 11px;font:11px Arial,sans-serif}
-.top-actions button.route-mode{display:inline-flex;align-items:center;justify-content:center;width:42px;height:38px;min-width:42px;padding:7px;background:#fffdf7;border:1px solid #c9c6b8;color:#424a43;transition:background .18s,border-color .18s,box-shadow .18s,color .18s}
-.route-mode svg{width:23px;height:23px;flex:0 0 23px;fill:currentColor}
-.top-actions button.route-mode.active{background:#e2e9df;color:#244b35;border:2px solid #294d3b;padding:6px;box-shadow:inset 0 0 0 1px #ffffff}
-.top-actions button.route-mode:disabled{opacity:.65;cursor:wait}
-.top-actions button:not(.route-mode):hover{background:#e2e7dc}
-#route-status{position:absolute;z-index:600;top:12px;left:50%;transform:translateX(-50%);max-width:calc(100% - 24px);padding:9px 13px;background:#f1eee4;border:1px solid #cfcdbb;box-shadow:0 2px 8px #30291e20;font:11px/1.4 Arial,sans-serif;display:none;text-align:center}
-.map-layout{position:relative;flex:1 1 auto;height:auto;min-height:0;overflow:hidden;overscroll-behavior:contain}
-#map{position:absolute;inset:0;background:#e9e5d9;touch-action:none;overscroll-behavior:contain;-webkit-user-select:none;user-select:none}
-.leaflet-container{touch-action:none;-webkit-tap-highlight-color:transparent}
-.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-map-pane,.leaflet-overlay-pane,.leaflet-shadow-pane{user-select:none;-webkit-user-select:none}
-.map-layout.panel-open .map-legend{display:none}
-.route-panel{position:absolute;z-index:700;left:12px;top:12px;bottom:12px;width:min(290px,calc(100vw - 24px));display:flex;flex-direction:column;background:#f1eee4;border:1px solid #cfcdbb;box-shadow:0 5px 20px #30291e20;transform:translateX(calc(-100% - 25px));transition:transform .25s}
-.route-panel.open{transform:translateX(0)}
-.panel-header{display:flex;justify-content:space-between;gap:10px;padding:14px;border-bottom:1px solid #cfcdbb;flex-shrink:0}
-.panel-header h2{margin:0;font-size:21px;font-weight:normal}
-.panel-header p{margin:5px 0 0;color:#696f65;font:11px/1.5 Arial,sans-serif}
-.close-button{width:30px;height:30px;border:1px solid #cfcdbb;background:#fffdf7}
-#stop-list{overflow:auto;padding:6px;min-height:0;-webkit-overflow-scrolling:touch}
-.stop{display:flex;width:100%;gap:10px;align-items:flex-start;text-align:left;padding:10px;border:0;border-bottom:1px solid #cfcdbb;background:transparent}
-.stop:hover,.stop.active{background:#e2e7dc}
-.stop-no{display:grid;place-items:center;flex-shrink:0;width:27px;height:27px;border:1px solid #b6a995;border-radius:50%;font:11px Arial,sans-serif}
-.stop.active .stop-no{background:#762f42;color:white}
-.stop-name{display:block;font-size:14px;line-height:1.3}
-.stop-subtitle{display:block;margin-top:4px;color:#696f65;font:10px/1.4 Arial,sans-serif}
-.story-card{position:absolute;z-index:650;right:12px;bottom:12px;width:min(440px,calc(100vw - 24px));height:min(760px,calc(100% - 24px));max-height:calc(100% - 24px);min-height:0;display:none;flex-direction:column;overflow:hidden;background:#f1eee4;border:1px solid #cfcdbb;box-shadow:0 5px 24px #30291e2b}
-.story-header{flex:0 0 auto;min-height:0;padding:15px 17px 12px;border-bottom:1px solid #cfcdbb}
-.story-tools{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
-.kicker{color:#762f42;font:bold 10px Arial,sans-serif;letter-spacing:2px;text-transform:uppercase}
-.tool-buttons button{width:29px;height:29px;border:1px solid #cfcdbb;background:#fffdf7}
-.story-title{margin:0;font-size:clamp(23px,4vw,31px);font-weight:normal;line-height:1.15}
-.story-creative{margin-top:7px;color:#294d3b;font-size:15px;font-style:italic}
-.story-scroll{flex:1 1 0%;height:0;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:15px 17px}
-.story-scroll p{margin:0 0 13px;font-size:15px;line-height:1.68}
-.story-location{margin-top:15px;padding-top:11px;border-top:1px solid #cfcdbb;color:#696f65;font:11px/1.5 Arial,sans-serif}
-.story-footer{flex:0 0 auto;min-height:54px;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;background:#e2e7dc;border-top:1px solid #cfcdbb;position:relative;z-index:2}
-.story-count{color:#696f65;font:11px Arial,sans-serif;white-space:nowrap}
-.story-nav{display:flex;gap:5px;flex-shrink:0}
-.story-nav button{padding:9px 10px;border:1px solid #c8bba8;background:#fffdf7;color:#202a24;font:11px Arial,sans-serif;white-space:nowrap;min-height:35px}
-.story-nav button:active{background:#e2e7dc}
-.map-number{display:grid;place-items:center;width:29px;height:29px;border:2px solid #f1eee4;border-radius:50%;background:#762f42;color:white;box-shadow:0 2px 7px #1f1b1740;font:bold 11px Arial,sans-serif;position:relative}
-.map-number.start{width:37px;height:37px;background:#294d3b;font-size:10px}
-.map-number.architecture{border-radius:5px;background:#94734f}
-.map-number.nature{background:#294d3b;border-style:dashed}
-.map-number.andriolli{border-radius:3px;background:#536b78;transform:rotate(45deg)}
-.map-number.andriolli span{transform:rotate(-45deg)}
-.map-legend{padding:10px 12px;background:rgba(255,253,247,.97);border:1px solid #cfcdbb;box-shadow:0 2px 9px #30291e20;color:#202a24;font:11px/1.6 Arial,sans-serif}
-.map-legend-title{margin-bottom:5px;color:#762f42;font:bold 10px Arial,sans-serif;letter-spacing:1px;text-transform:uppercase}
-.map-legend-row{display:flex;align-items:center;gap:8px;white-space:nowrap}
-.legend-symbol{display:inline-block;width:13px;height:13px;flex:0 0 13px;border:2px solid #f1eee4;box-shadow:0 1px 3px #0003}
-.legend-symbol.history{border-radius:50%;background:#762f42}
-.legend-symbol.architecture{border-radius:3px;background:#94734f}
-.legend-symbol.nature{border:2px dashed #294d3b;border-radius:50%;background:#dfe8dc}
-.legend-symbol.andriolli{width:11px;height:11px;flex-basis:11px;margin:0 1px;background:#536b78;transform:rotate(45deg)}
-.legend-symbol.start{border-radius:50%;background:#294d3b}
-.legend-toggle{display:none;position:absolute;z-index:560;top:9px;left:9px;padding:8px 11px;border:1px solid #cfcdbb;border-radius:3px;background:#fffdf7;color:#202a24;font:11px Arial,sans-serif;box-shadow:0 2px 8px #30291e20}
-.map-layout.panel-open .legend-toggle{display:none}
-.stop-photo{margin:0 0 17px;background:#fffdf7;border:1px solid #cfcdbb}
-.stop-photo img{display:block;width:100%;height:auto;max-height:270px;min-height:0;object-fit:contain;background:#e8e4d9}
-.stop-photo figcaption{padding:8px 10px;color:#696f65;font:10px/1.5 Arial,sans-serif}
-.stop-photo a{color:#762f42;text-decoration:underline}
-.stop-photo.image-unavailable{min-height:75px;display:flex;flex-direction:column;justify-content:center}
-.stop-photo.image-unavailable img{display:none}
-.stop-photo.image-unavailable:before{content:"Zdjęcie jest chwilowo niedostępne. Możesz otworzyć jego źródło poniżej.";display:block;padding:13px 12px;color:#696f65;font:11px/1.5 Arial,sans-serif;text-align:center}
-.fact-box{margin:17px 0;padding:14px 15px;background:#fffdf7;border:1px solid #cfcdbb;border-left:3px solid #762f42}
-.fact-box h3{margin:0 0 8px;color:#762f42;font-size:17px;font-weight:normal}
-.fact-box p{margin:0;font:13px/1.65 Arial,sans-serif}
-.photo-comparison{margin:16px 0;padding:13px;background:#fffdf7;border:1px solid #cfcdbb;border-top:3px solid #294d3b}
-.photo-comparison h3{margin:0 0 12px;font-size:17px;font-weight:normal}
-.comparison-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.comparison-grid figure{margin:0;min-width:0}
-.comparison-grid img{display:block;width:100%;height:auto;max-height:260px;object-fit:contain;background:#e8e4d9}
-.comparison-grid figcaption{font:11px/1.5 Arial,sans-serif}
-.comparison-grid figcaption p{margin:5px 0 0}
-.interactive-center{margin:16px 0;padding:13px;background:#fffdf7;border:1px solid #cfcdbb;border-top:3px solid #294d3b}
-.interactive-center h3{margin:0 0 8px;font-size:19px;font-weight:normal}
-.interactive-center .intro{font:13px/1.6 Arial,sans-serif;margin:0 0 12px}
-.center-category{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0 0;padding:11px 12px;border:1px solid #cfcdbb;background:#f1eee4;color:#202a24;text-align:left;font:12px Arial,sans-serif;letter-spacing:.3px}
-.center-category:hover,.center-category[aria-expanded="true"]{background:#e2e7dc;border-color:#294d3b}
-.center-category .arrow{color:#762f42;font-size:18px;flex-shrink:0}
-.center-category-content{display:none;margin:0;padding:11px 12px;background:#f5f2e9;border:1px solid #cfcdbb;border-top:0;font:13px/1.65 Arial,sans-serif}
-.center-category-content.open{display:block}
-.gurewicz-puzzle{margin:18px 0;padding:14px;background:#fffdf7;border:1px solid #cfcdbb;border-top:3px solid #294d3b}
-.gurewicz-puzzle h3{margin:0 0 8px;font-size:19px;font-weight:normal}
-.gp-intro{font-size:13px!important;line-height:1.55!important;margin-bottom:12px!important}
-.gp-preview{display:block;width:100%;max-height:260px;object-fit:contain;margin:12px 0;background:#e8e4d9}
-.gp-button{border:1px solid #762f42;border-radius:2px;padding:11px 14px;background:#762f42;color:white;font:11px Arial,sans-serif;letter-spacing:.7px;text-transform:uppercase}
-.gp-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;width:100%;max-width:360px;aspect-ratio:4/3;margin:14px auto}
-.gp-tile{min-width:0;min-height:0;padding:0;border:2px solid transparent;border-radius:2px;background-repeat:no-repeat;cursor:pointer;transition:border-color .15s,transform .2s}
-.gp-tile:hover{border-color:#a98c6b}
-.gp-tile.gp-selected{border-color:#762f42;transform:scale(.94)}
-.gp-tile:disabled{cursor:default}
-.gp-message{min-height:22px;margin:10px 0;font:13px/1.5 Arial,sans-serif}
-.gp-count{margin:5px 0;color:#696f65;font:11px Arial,sans-serif}
-.gp-board.gp-breaking .gp-tile{animation:gpBreak .55s ease both}
-@keyframes gpBreak{0%{transform:scale(1);opacity:1}45%{transform:translateY(-6px) rotate(2deg) scale(.88);opacity:.65}100%{transform:translateY(0) rotate(0) scale(1);opacity:1}}
-@media(max-width:760px){.topbar{align-items:flex-start;flex-direction:column}.top-actions{width:100%;justify-content:flex-start}.top-actions button.route-mode{flex:0 0 42px;min-width:42px}.map-layout{height:auto;min-height:0}}
-@media(max-width:650px){.legend-toggle{display:block}.map-layout .legend-control{display:none}.map-layout.legend-open .legend-control{display:block}.topbar{padding:9px}.brand{font-size:14px}.brand small{font-size:9px}.top-actions button{padding:8px;font-size:10px}.top-actions button.route-mode{padding:7px}.top-actions button.route-mode.active{padding:6px}.map-layout{height:auto;min-height:0}.story-card{right:7px;bottom:7px;left:7px;width:auto;height:76%;max-height:calc(100% - 14px);min-height:0;display:none;flex-direction:column}.story-header{flex:0 0 auto;min-height:0;padding:11px 13px 9px}.story-title{font-size:25px}.story-creative{font-size:14px}.story-scroll{flex:1 1 0%;height:0;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch;padding:12px 13px}.story-scroll p{font-size:14px;line-height:1.6}.story-footer{flex:0 0 auto;min-height:50px;padding:8px;gap:5px}.story-count{font-size:10px}.story-nav{gap:4px}.story-nav button{padding:8px 7px;font-size:10px;min-height:34px}.route-panel{left:7px;top:7px;bottom:7px}.stop-photo img{max-height:220px;height:auto;object-fit:contain}.comparison-grid img{max-height:220px;height:auto;object-fit:contain}}
-@media(max-width:380px){.story-count{font-size:9px}.story-nav button{padding:7px 5px;font-size:9px}.story-footer{gap:3px}}
-@media(max-width:480px){.comparison-grid{grid-template-columns:1fr}.route-mode svg{width:21px;height:21px;flex-basis:21px}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
-#route-finish{position:absolute;z-index:1200;inset:0;display:none;place-items:center;padding:18px;background:#202a24a8}
-#route-finish.visible{display:grid}
-.finish-card{width:min(470px,100%);max-height:calc(100% - 20px);overflow:auto;background:#f1eee4;border:1px solid #cfcdbb;box-shadow:0 12px 40px #0004;text-align:center;padding:clamp(20px,5vw,34px)}
-.finish-eyebrow{font:10px Arial,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#762f42}
-.finish-card h2{font:normal clamp(29px,6vw,39px)/1.05 'Cormorant Garamond',Georgia,serif;margin:10px 0 12px;color:#202a24}
-.finish-card p{font:13px/1.7 'Libre Baskerville',Georgia,serif;margin:0 auto 17px;max-width:360px}
-.finish-qr{display:block;width:190px;height:190px;max-width:65vw;object-fit:contain;margin:12px auto 15px;padding:8px;background:#fff;border:1px solid #cfcdbb}
-.finish-actions{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-top:15px}
-.finish-actions button,.finish-actions a{display:inline-block;padding:10px 14px;border:1px solid #294d3b;background:#294d3b;color:#fffdf7;text-decoration:none;font:12px Arial,sans-serif;cursor:pointer}
-.finish-actions button.secondary{background:#fffdf7;color:#294d3b}
+body{margin:0;background:var(--paper);color:var(--dark);font-family:"Libre Baskerville",Georgia,serif;line-height:1.7}
+.page{width:min(900px,calc(100% - 32px));margin:35px auto}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:15px;border-bottom:1px solid var(--line);padding-bottom:15px;color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase}
+.hero{text-align:center;padding:75px 0 45px}
+.eyebrow{color:var(--wine);font-size:12px;letter-spacing:3px;text-transform:uppercase}
+h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif}
+h1{font-size:clamp(45px,8vw,85px);line-height:1;font-weight:500;margin:20px 0}
+.intro{max-width:650px;margin:auto;color:#4e574d}
+.quiz-head{text-align:center;margin:35px 0 25px}
+.quiz-head h2{font-size:clamp(30px,5vw,48px);font-weight:500;margin:0}
+.quiz-head p{color:var(--muted)}
+.progress-wrap{height:6px;background:#dedccd;margin-bottom:22px;border-radius:10px;overflow:hidden}
+.progress{height:100%;width:0;background:var(--wine);transition:width .3s}
+.question-card,.result{background:var(--cream);border:1px solid var(--line);padding:clamp(22px,5vw,42px)}
+.question-number{color:var(--wine);font-size:12px;letter-spacing:2px;text-transform:uppercase}
+.question-card h3{font-size:clamp(25px,4vw,35px);line-height:1.25;font-weight:500;margin:15px 0 25px}
+.answers{display:grid;gap:10px}
+.answer{width:100%;padding:14px 16px;background:transparent;border:1px solid var(--line);color:var(--dark);text-align:left;font:inherit;cursor:pointer;transition:.2s}
+.answer:hover:not(:disabled){background:var(--pale);border-color:var(--green)}
+.answer:disabled{cursor:default}
+.answer.correct{background:#e0eadf;border-color:var(--green)}
+.answer.wrong{background:#f0e1e2;border-color:var(--wine)}
+.feedback{display:none;margin-top:20px;padding:15px;background:var(--pale);border-left:3px solid var(--green);font-size:14px}
+.feedback.show{display:block}
+.controls{display:flex;justify-content:flex-end;margin-top:22px}
+.button{border:0;background:var(--green);color:white;padding:13px 22px;font:inherit;cursor:pointer}
+.button:hover{background:var(--dark)}
+.result{display:none;text-align:center}
+.result.show{display:block}
+.result-score{font-family:"Cormorant Garamond",Georgia,serif;font-size:clamp(65px,12vw,110px);line-height:1;color:var(--wine);margin:20px 0}
+.result h2{font-size:40px;font-weight:500;margin:0}
+.result p{color:var(--muted)}
+.result .button{margin-top:15px}
+.bottom{text-align:center;color:var(--muted);font-size:12px;padding:35px 0 15px;border-top:1px solid var(--line);margin-top:50px}
+@media(max-width:560px){.page{margin:20px auto}.topline{font-size:10px}.answer{padding:13px}}
 </style>
 </head>
 <body>
-<section id="cover" class="cover">
-<div class="cover-inner">
-<svg class="cover-art" viewBox="0 0 145 190" role="img" aria-label="Sosna">
-<path d="M72 25 32 75 52 71 20 111 51 104 12 145 63 135 72 151 81 135 132 145 93 104 124 111 92 71 112 75Z" fill="#294d3b"/>
-<path d="M72 25V174" stroke="#795e45" stroke-width="5"/>
-<path d="M32 75 72 88 112 75M20 111 72 124 124 111M12 145 72 157 132 145" fill="none" stroke="#849178" stroke-width="1.5"/>
-</svg>
-<h1>Śladami Andriollego</h1>
-<div class="cover-photo"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Andriolli_Whence_return_Lithuanians.jpg" alt="Ilustracja Michała Elwiro Andriollego do Konrada Wallenroda"></div>
-<p class="cover-credit">Ilustracja Michała Elwiro Andriollego, <em>Skąd Litwini wracali?</em> · <a href="https://commons.wikimedia.org/wiki/File:Andriolli_Whence_return_Lithuanians.jpg" target="_blank" rel="noopener noreferrer">źródło</a></p>
-<button class="primary" onclick="enterMap()">Otwórz mapę</button>
-</div>
+<main class="page">
+<div class="topline"><span>Śladami Andriollego</span></div>
+<header class="hero">
+<div class="eyebrow">Koniec trasy?</div>
+<h1>I co, poznajesz<br>już Otwock?</h1>
+<p class="intro">Przeszedłeś całą trasę i naprawdę ciekawe historie. Ale ile z nich udało Ci się zapamiętać?</p>
+</header>
+<section class="quiz-head">
+<h2>No dobra, sprawdźmy, co zapamiętałeś</h2>
 </section>
-<section id="map-page">
-<header class="topbar">
-<div class="brand">Śladami Andriollego<small>Z Androllim po Otwocku</small></div>
-<div class="top-actions">
-<button onclick="showRoute('foot')" id="walk-route-btn" class="route-mode" aria-label="Trasa piesza" aria-pressed="false" title="Trasa piesza">
-<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="13.5" cy="4.5" r="2.2"/><path d="M12.2 7.3c-1.4.2-2.4 1.2-2.8 2.6l-.8 3.1 2.2 1.1 1.2-3.2 1.7 1.5-1 3.5 2.2 1.1 1.3-4.5c.3-1.1 0-2.1-.9-2.8l-1.5-1.3 2.6.4 1.2 2.1 1.9-1-1.7-3c-.4-.7-1-1.1-1.8-1.2l-3.8-.4zM8.2 14.1l-2.4 3.1-2.5 1.2.9 1.8 3.1-1.5c.3-.1.5-.3.7-.6l2.1-2.7zM13.2 15.5l-.3 3.3 1.1 2.2 1.8-.9-.9-1.8.3-2.5z"/></svg>
-</button>
-<button onclick="showRoute('car')" id="car-route-btn" class="route-mode" aria-label="Trasa samochodowa" aria-pressed="false" title="Trasa samochodowa">
-<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.1 11.1 6.5 6.8c.3-.9 1.1-1.5 2.1-1.5h6.8c1 0 1.8.6 2.1 1.5l1.4 4.3 1.3.6c.5.2.8.7.8 1.3v4.1c0 .6-.4 1-1 1h-.9v1.1c0 .5-.4.9-.9.9h-1.1c-.5 0-.9-.4-.9-.9v-1.1H7.8v1.1c0 .5-.4.9-.9.9H5.8c-.5 0-.9-.4-.9-.9v-1.1H4c-.6 0-1-.4-1-1V13c0-.6.3-1.1.8-1.3l1.3-.6zm1.6-.2h10.6l-1.1-3.4c-.1-.3-.4-.5-.8-.5H8.6c-.4 0-.7.2-.8.5l-1.1 3.4zM6.3 15.7a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6zm11.4 0a1.3 1.3 0 1 0 0-2.6 1.3 1.3 0 0 0 0 2.6z"/></svg>
-</button>
-<button onclick="toggleRoutePanel()">Punkty</button>
-<button onclick="fitRoute()">Cała trasa</button>
-<button onclick="returnHome()">str. główna</button>
-</div>
-</header>
-<main class="map-layout">
-<button id="legend-toggle" class="legend-toggle" type="button" onclick="toggleLegend()" aria-expanded="false">Legenda</button>
-<div id="map" aria-label="Interaktywna mapa Otwocka"></div>
-<div id="route-status" role="status" aria-live="polite"></div>
-<aside id="route-panel" class="route-panel">
-<div class="panel-header"><div><h2>Punkty na mapie</h2><p>Wybierz miejsce</p></div><button class="close-button" onclick="closeRoutePanel()" aria-label="Zamknij panel">×</button></div>
-<div id="stop-list"></div>
-</aside>
-<article id="story-card" class="story-card">
-<header class="story-header">
-<div class="story-tools"><span id="story-kicker" class="kicker"></span><div class="tool-buttons"><button onclick="closeStory()" aria-label="Zamknij">×</button></div></div>
-<h2 id="story-title" class="story-title"></h2>
-<div id="story-creative" class="story-creative"></div>
-</header>
-<div id="story-content" class="story-scroll"></div>
-<footer class="story-footer"><span id="story-count" class="story-count"></span><div class="story-nav"><button onclick="previousStop()">← Poprzedni</button><button onclick="nextStop()">Następny →</button></div></footer>
-</article>
-<div id="route-finish">
-<div class="finish-card">
-<div class="finish-eyebrow">To już koniec trasy</div>
-<h2>Otwock poznany?</h2>
-<p>Udało Ci się odwiedzić wszystkie miejsca. Teraz możesz sprawdzić, ile historii zostało w pamięci.</p>
-<img class="finish-qr" id="finish-qr" alt="Kod QR prowadzący do quizu o Otwocku">
-<div class="finish-actions"><a href="https://wieliczkoantonia-hash.github.io/sladami-andriollego-quizz/">Przejdź do quizu</a><button class="secondary" onclick="closeRouteFinish()">Wróć do mapy</button></div>
-</div>
-</div>
+<div class="progress-wrap"><div class="progress" id="progress"></div></div>
+<section class="question-card" id="question-card">
+<div class="question-number" id="question-number"></div>
+<h3 id="question"></h3>
+<div class="answers" id="answers"></div>
+<div class="feedback" id="feedback"></div>
+<div class="controls"><button class="button" id="next" hidden>Następne pytanie →</button></div>
+</section>
+<section class="result" id="result">
+<div class="eyebrow">Quiz zakończony</div>
+<h2 id="result-title"></h2>
+<div class="result-score" id="score"></div>
+<p id="result-text"></p>
+<button class="button" id="restart">Spróbuj jeszcze raz</button>
+</section>
 </main>
-</section>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const stops=[
-{name:"Dworzec kolejowy",creative:"Pierwszy przystanek",category:"Historia",coords:[52.108540,21.264110],location:"Dworzec kolejowy w Otwocku",image:"19we-otwock001.jpg",page:"https://otwock.pl/historia-otwocka",alt:"Kolej w Otwocku",caption:"Kolej w Otwocku",p:["W 1877 roku do Otwocka dotarła Kolej Nadwiślańska. Od tego momentu droga z Warszawy stała się znacznie łatwiejsza, a miejscowość zaczęła przyciągać coraz więcej letników i kuracjuszy. Wkrótce pojawiły się pensjonaty, sanatoria i drewniane wille, które do dziś przypominają o dawnym charakterze Otwocka.","Trudno dziś wyobrazić sobie rozwój Otwocka bez kolei. Zwykły przyjazd pociągiem stał się początkiem przemiany niewielkiej miejscowości w znane letnisko. Właśnie stąd można ruszyć śladami tamtych zmian i zobaczyć, co po nich pozostało."]},
-{name:"Skwer 7. Pułku Ułanów",creative:"Piasek w środku miasta",category:"Historia",coords:[52.106972,21.264136],location:"Skwer 7. Pułku Ułanów przy ul. Andriollego, Otwock",imageUrl:"https://s30.flog.pl/media/foto_middle/dan-1_930868d6c47d569a012beb58c54b79f0.jpg",page:"https://dan-1.flog.pl/wpis/14527756/strumyk-i-wydmy-w-centrum-miasta-otwocka",alt:"Skwer 7. Pułku Ułanów w Otwocku",caption:"Skwer 7. Pułku Ułanów",p:["Skwer 7. Pułku Ułanów, nazywany przez większość Małpim Gajem, znajduje się w centrum Otwocka. Jego najbardziej charakterystyczną częścią są piaszczyste pagórki przypominające wydmy. Wcześniej w tym miejscu znajdował się sosnowy lasek, a po przebudowie skwer zyskał zupełnie nowy wygląd.","Obecnie można tu znaleźć fontanny, alejki, ławki i trampoliny. Jedną z atrakcji jest wodny plac zabaw, a pagórkowaty teren nadaje temu miejscu charakterystyczny wygląd."]},
-{name:"Pensjonat Abrama Gurewicza",creative:"W sercu dawnego letniska",category:"Architektura",coords:[52.102410,21.271070],location:"Pensjonat Abrama Gurewicza w Otwocku",p:["Wszystko zaczęło się w 1906 roku od niewielkiej willi zwanej Gurewiczanką. Abram Gurewicz i jego syn Szymon stopniowo ją rozbudowywali, aż powstał ogromny pensjonat. W kolejnych latach miejsce to przyciągało osoby szukające wypoczynku i poprawy zdrowia.","Ale jak właściwie działał taki pensjonat?","Nie był to po prostu nocleg z łóżkiem i śniadaniem. Goście mieli do dyspozycji czytelnię, salę jadalną, bawialnię, a nawet salę koncertową z fortepianem. Można było tu więc nie tylko odpoczywać, ale też spędzać czas z innymi."]},
-{name:"Park Miejski",creative:"W cieniu starych drzew",category:"Odpoczynek",coords:[52.100727,21.270703],location:"Park Miejski w Otwocku",image:"W_parku,_Stary_Otwock_1920-1929_(41298683).jpg",page:"https://commons.wikimedia.org/wiki/File:W_parku,_Stary_Otwock_1920-1929_(41298683).jpg",alt:"Park w Starym Otwocku",caption:"Park w Starym Otwocku, lata 1920–1929",p:["W 1924 roku Otwock kupił teren pod Park Miejski. Projekt parku przygotował Wacław Tański, ogrodnik związany z warszawskimi Łazienkami. Przed wojną znajdowały się tu alejki spacerowe, korty tenisowe i fontanna. Park był miejscem odpoczynku zarówno dla mieszkańców, jak i osób przyjeżdżających do Otwocka na letni pobyt.","Rozwój takich miejsc wiązał się z przemianą Otwocka w popularną miejscowość letniskową. Przyjezdni szukali tu spokoju, zieleni i odpoczynku od Warszawy, a park stanowił część tej oferty. Do dziś pozostaje jednym z miejskich terenów zielonych, choć od czasów przedwojennych wiele się w Otwocku zmieniło."]},
-{name:"Willa Kahana",creative:"Dom doktora",category:"Architektura",coords:[52.105629,21.284504],location:"ul. Marii Konopnickiej 7 i 7a, Otwock",imageUrl:"https://commons.wikimedia.org/wiki/Special:FilePath/Willa_Kahana,_ul._Marii_Konopnickiej_7_i_7a.jpg",page:"https://commons.wikimedia.org/wiki/File:Willa_Kahana,_ul._Marii_Konopnickiej_7_i_7a.jpg",alt:"Willa Kahana przy ulicy Marii Konopnickiej",caption:"Willa Kahana przy ul. Marii Konopnickiej",p:["W 1910 roku przy dzisiejszej ulicy Konopnickiej powstała Willa Nowość. Kilkanaście lat później obok niej wybudowano drugi dom dla rodziny Kahanów. Mieszkał tu doktor Mieczysław Kahan, który prowadził praktykę lekarską, a w jednym z budynków działał również pensjonat. Oba domy można zobaczyć w filmie Pora umierać z Danutą Szaflarską, nakręconym w 2007 roku."]},
-{name:"Willa Podole",creative:"Dawny adres zdrowia",category:"Architektura",coords:[52.110241,21.268685],location:"ul. Kościuszki 15, Otwock",imageUrl:"https://otwock.pl/images_beforeafter/Willa_Podole_Kosciuszki_po.jpg",page:"https://otwock.pl/otwock-kiedys-i-dzis",alt:"Willa Podole przy ulicy Kościuszki",caption:"Willa Podole przy ul. Kościuszki",p:["W 1895 roku Franciszek Podolski, farmaceuta, wybudował willę, w której otworzył aptekę. Oprócz leków sprzedawano tu wody mineralne i różne środki lecznicze. Można było nawet zamówić dezynfekcję pomieszczeń specjalnym aparatem. Podczas II wojny światowej apteka służyła także jako punkt kontaktowy konspiracji i miejsce dystrybucji podziemnej prasy. Działała aż do 1994 roku."]},
-{name:"Willa Wajnbergów",creative:"Drewniana elegancja",category:"Architektura",coords:[52.0999,21.2574],location:"ul. Świerkowa 16, Otwock",imageUrl:"https://iotwock.info/static/files/gallery/81/1663727_1736786761.webp",page:"https://iotwock.info/artykul/nowy-otwocki-swidermajer-n1663727",alt:"Willa Wajnbergów przy ulicy Świerkowej",caption:"Willa Wajnbergów przy ul. Świerkowej 16",p:["W 1928 roku na terenie dawnej posesji Willi Glinianka powstał pensjonat Wajnbergów. Przyjeżdżali tu goście, którzy spędzali w Otwocku dłuższy czas, korzystając z lokalnych pensjonatów i sanatoriów. W budynku zachowały się między innymi drewniana klatka schodowa, oryginalne drzwi i ceramiczne piece. W styczniu 2025 roku willę wpisano do rejestru zabytków."]},
-{name:"Brzegi Michała Elwiro Andriollego",creative:"Nad wodą, wśród wspomnień",category:"Historia",coords:[52.0878,21.3030],location:"Dawna posiadłość Brzegi nad Świdrem",imageUrl:"https://archiwum.otwock.pl/zdjecia/historia/andriol.jpg",page:"https://archiwum.otwock.pl/default.asp?ID=33&w=2",alt:"Dom nazwany „Mój” Andriollego, z jego sylwetką na ganku",caption:"Dom nazwany „Mój” Andriollego, z jego sylwetką na ganku",p:["Michał Elwiro Andriolli był rysownikiem i ilustratorem, ale jego związek z okolicą Otwocka nie ograniczał się do pracy artystycznej. W 1880 roku kupił nad Świdrem posiadłość, którą nazwał Brzegami. Zamieszkał tam i postanowił stworzyć miejsce, do którego mogliby przyjeżdżać letnicy z Warszawy.","Na terenie posiadłości powstały drewniane wille przeznaczone na wynajem. Miały charakterystyczne werandy, ozdobne wykończenia i wiele detali, które wyróżniały je spośród zwykłych domów. Andriolli zadbał o to, by budynki pasowały do otaczającej je przyrody. Jego pomysł szybko znalazł naśladowców, a podobna architektura zaczęła pojawiać się w kolejnych miejscowościach nad Świdrem."],fact:{title:"Ciekawostka",text:"Andriolli miał również plany związane z przyszłością Brzegów. Chciał, aby po jego śmierci powstało tam sanatorium przeznaczone dla osób niezamożnych, przede wszystkim dla dzieci. Pomysł ten miał szansę zostać zrealizowany dzięki staraniom doktora Henryka Dobrzyckiego, jednak zabrakło pieniędzy na jego wykonanie. Ostatecznie sanatorium nigdy nie powstało."}},
-{name:"Rzeka Świder",creative:"Nurt własną drogą",category:"Odpoczynek",coords:[52.14380210131452,21.272551484254087],location:"Dolina rzeki Świder",imageUrl:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Swider_rzeka.jpg/800px-Swider_rzeka.jpg",page:"https://commons.wikimedia.org/wiki/Category:Otwock",alt:"Rzeka Świder",caption:"Rzeka Świder",p:["Rzeka Świder ma za sobą długą historię, a jej okolice były zamieszkane na długo przed powstaniem Otwocka. Już w 1405 roku w dokumentach pojawiła się nazwa Świder, odnosząca się do dawnej osady. Przez kolejne stulecia rzeka i jej okolice stanowiły ważną część życia lokalnej społeczności. Z czasem stały się również miejscem, które przyciągało coraz więcej przyjezdnych.","W XIX wieku Świder zaczął odgrywać coraz większą rolę w rozwoju okolicznych miejscowości. Jego piaszczyste brzegi, zakola i otaczające je lasy przyciągały mieszkańców Warszawy szukających wypoczynku. W okresie międzywojennym nad Świdrem działały plaże i przystanie, a rzeka stała się jednym z charakterystycznych miejsc letniego wypoczynku.","Po II wojnie światowej znaczenie Świdra jako miejsca rekreacji zmalało, między innymi z powodu pogarszającej się jakości i objętości wody. W 1978 roku utworzono rezerwat przyrody „Świder”, obejmujący 41 kilometrów rzeki oraz fragment doliny rzeki Mieni."]},
-{name:"Zofiówka",creative:"Własny świat",category:"Historia",coords:[52.114890,21.288220],location:"ul. Kochanowskiego 10, Otwock",imageUrl:"https://static2.przegladotwocki.pl/data/articles/xl-zofiowka-rok-1938-1675343059-full.jpg",page:"https://www.przegladotwocki.pl/artykul/421,zofiowka-rok-1938",alt:"Budynek sanatorium Zofiówka w 1938 roku",caption:"Zofiówka w 1938 roku",p:["Historia Zofiówki rozpoczęła się w 1906 roku, kiedy grupa lekarzy i społeczników założyła Towarzystwo Opieki nad Ubogimi Nerwowo i Umysłowo Chorymi Żydami. Dwa lata później w Otwocku otwarto pierwszy pawilon zakładu. Zakup rozległego terenu był możliwy dzięki Zofii Endelman, która przekazała na ten cel swoją biżuterię. Pierwszym kierownikiem placówki został doktor Samuel Goldflam, znany warszawski neurolog. Zofiówka przyjmowała przede wszystkim osoby niezamożne, a wielu pacjentów leczono bezpłatnie.","Podczas II wojny światowej Zofiówka znalazła się na terenie getta uzdrowiskowego. 19 sierpnia 1942 roku, podczas jego likwidacji, niemieccy okupanci zamordowali 108 pacjentów i trzech lekarzy. Z czasem placówka przestała funkcjonować, a jej zabudowania zaczęły niszczeć. Dziś miejsce to przypomina o ważnej części historii Otwocka i jego dawnych mieszkańcach."]},
-{name:"Mały Biskupin",creative:"Królestwo z gałęzi",category:"Odpoczynek",coords:[52.0983,21.2648],location:"Las przy ul. Karczewskiej, Otwock",imageUrl:"https://static2.przegladotwocki.pl/data/articles/xl-sekretny-zakatek-w-otwocku-maly-biskupin-miejsce-na-rodzinny-wypad-foto-1695399280.jpg",page:"https://static2.przegladotwocki.pl/data/articles/xl-sekretny-zakatek-w-otwocku-maly-biskupin-miejsce-na-rodzinny-wypad-foto-1695399280.jpg",alt:"Drewniana osada Mały Biskupin widziana z przodu",caption:"Mały Biskupin w otwockim lesie",p:["Mały Biskupin to drewniana osada położona w otwockim lesie. Jej nazwa nawiązuje do słynnego grodu w Biskupinie. Powstała z inicjatywy mieszkańca, który zaczął od budowy niewielkiego szałasu, a z czasem rozbudował go w większą konstrukcję. Z biegiem lat pojawiały się kolejne budowle, przejścia i miejsca do odpoczynku.","Inspiracją do dalszej rozbudowy były między innymi własne pomysły twórcy oraz konstrukcje znane z różnych miejsc i filmów. Wśród drewnianych budowli znalazły się także elementy nawiązujące do statku Titanic. Osada jest stale rozwijana, a jej wygląd zmienia się wraz z kolejnymi pomysłami."]},
-{name:"Pomnik Iskra",creative:"Ostatni lot",category:"Historia",coords:[52.1047,21.2608],location:"Otwock",imageUrl:"https://www.kielceaircollection.eu/wp-content/uploads/2024/10/IS_642p7225_20240930_Otwock_TS-11-Iskra_pomnik-bialo-czerwonej-Iskry-2-973x649.jpg",page:"https://www.kielceaircollection.eu/2024/10/04/otwock-pomnik-bialo-czerwonej-iskry/",alt:"Pomnik samolotu TS-11 Biało-Czerwona Iskra w Otwocku",caption:"Pomnik Biało-Czerwonej Iskry, fot. Kielce Air Collection, 2024",p:["Przez wiele lat charakterystycznym elementem tego miasta był myśliwiec Lim-6, ustawiony przy skrzyżowaniu ulic Andriollego i Hożej. Stał tam przez około 30 lat i stał się dobrze rozpoznawalnym punktem. Po jego usunięciu w 2000 roku pomysł przywrócenia samolotu do przestrzeni miasta powrócił po latach.","W 2022 roku sprowadzono do Otwocka szkolno-treningowy samolot TS-11 Iskra. Ustawiono go na górce przy ulicy Armii Krajowej, nadając temu miejscu nowe znaczenie. Pomnik upamiętnia dwóch pilotów, majora Tomasza Pajórka i majora Mariusza Oliwę, którzy zginęli 11 listopada 1998 roku w katastrofie lotniczej w Otwocku-Soplicowie. Uroczyste odsłonięcie odbyło się 15 sierpnia 2023 roku."]}
+const questions=[
+{q:"W którym roku kolej dotarła do Otwocka?",a:["1867 r.","1877 r.","1887 r.","1897 r."],correct:1,info:"1877 rok. Wtedy do Otwocka dotarła Kolej Nadwiślańska, łącząca miejscowość z Warszawą."},
+{q:"Kto był twórcą związanym z posiadłością Brzegi nad Świdrem?",a:["Józef Chełmoński","Stanisław Witkiewicz","Michał Elwiro Andriolli","Julian Fałat"],correct:2,info:"Michał Elwiro Andriolli, malarz i ilustrator, zamieszkał w posiadłości Brzegi nad Świdrem."},
+{q:"Który budynek jest jednym z najbardziej charakterystycznych przykładów świdermajeru?",a:["Pensjonat Abrama Gurewicza","Pałac Kultury i Nauki","Zamek Królewski","Belweder"],correct:0,info:"Pensjonat Abrama Gurewicza. Jego drewniana konstrukcja, werandy i dekoracyjne detale nawiązują do stylu świdermajer."},
+{q:"W którym roku Otwock otrzymał prawa miejskie?",a:["1905 r.","1910 r.","1916 r.","1924 r."],correct:2,info:"1916 rok. Właśnie wtedy Otwock uzyskał prawa miejskie."},
+{q:"Jak nazywała się posiadłość Michała Elwiro Andriollego nad Świdrem?",a:["Zacisze","Brzegi","Leśniczówka","Zalesie"],correct:1,info:"Brzegi. Taką nazwę nosiła posiadłość artysty położona nad Świdrem."},
+{q:"Jaka rzeka jest szczególnie związana z historią Otwocka i Andriollego?",a:["Wisła","Narew","Świder","Pilica"],correct:2,info:"Świder. Nad jego brzegiem znajdowała się posiadłość Andriollego, a okolica z czasem stała się popularnym miejscem wypoczynku."},
+{q:"Co przyczyniło się do rozwoju Otwocka jako miejscowości letniskowej?",a:["Rozwój kolei i dogodny dojazd z Warszawy","Odkrycie złóż węgla","Powstanie dużego portu","Rozwój przemysłu stoczniowego"],correct:0,info:"Połączenie kolejowe z Warszawą. Dzięki niemu do Otwocka łatwiej docierali mieszkańcy stolicy szukający odpoczynku poza miastem."},
+{q:"Z jakiego materiału najczęściej budowano domy w stylu świdermajer?",a:["Z cegły","Z kamienia","Z betonu","Z drewna"],correct:3,info:"Drewno. Z niego wznoszono charakterystyczne wille i pensjonaty z werandami oraz ozdobnymi elementami."},
+{q:"W jakim celu dawniej przyjeżdżano do Otwocka?",a:["Na wypoczynek i leczenie","Do portu handlowego","Na targi przemysłowe","Do kopalni"],correct:0,info:"Na wypoczynek i leczenie. Otwock słynął z sanatoriów, pensjonatów oraz korzystnego dla zdrowia klimatu."},
+{q:"Co jest charakterystyczne dla architektury świdermajer?",a:["Surowe betonowe bryły","Drewniane werandy i ażurowe zdobienia","Wysokie szklane fasady","Kamienne mury obronne"],correct:1,info:"Drewniane werandy, ozdobne balustrady i ażurowe wykończenia. To właśnie te elementy nadają świdermajerom charakterystyczny wygląd."}
 ];
-let map,routeLine,routeOutline,markerLayer,currentIndex=0,routeRequestId=0,activeRouteMode=null;
-let routeStopOrder=stops.map((_,i)=>i);
-let routeAnimationFrame=null;
-let routeGeometry=null;
-const center=[52.108,21.276];
-const MAP_BOUNDS=L.latLngBounds([52.075,21.238],[52.158,21.322]);
-function enterMap(){
-document.getElementById("cover").style.display="none";
-document.body.classList.add("map-active");
-document.getElementById("map-page").style.display="flex";
-if(!map)initMap();
-setTimeout(()=>{map.invalidateSize();fitRoute();},180);
-}
-function returnHome(){
-closeStory();
-closeRoutePanel();
-document.body.classList.remove("map-active");
-document.getElementById("map-page").style.display="none";
-document.getElementById("cover").style.display="grid";
-}
-function getMapSymbol(s){
-if(s.name==="Brzegi Michała Elwiro Andriollego")return "andriolli";
-if(s.category==="Architektura")return "architecture";
-if(s.category==="Odpoczynek")return "nature";
-return "history";
-}
-function drawMarkers(){
-if(!markerLayer)return;
-markerLayer.clearLayers();
-routeStopOrder.forEach((stopIndex,position)=>{
-const s=stops[stopIndex];
-const symbol=position===0?"start":getMapSymbol(s);
-const label=position===0?"START":position+1;
-const size=position===0?[37,37]:[29,29];
-const anchor=position===0?[18,18]:[14,14];
-const icon=L.divIcon({className:"",html:`<div class="map-number ${symbol}"><span>${label}</span></div>`,iconSize:size,iconAnchor:anchor});
-L.marker(s.coords,{icon,zIndexOffset:1000}).addTo(markerLayer).bindTooltip(s.name).on("click",()=>openStop(stopIndex));
-});
-}
-function initMap(){
-map=L.map("map",{zoomControl:false,minZoom:12,maxZoom:19,zoomSnap:0.1,zoomDelta:0.5,wheelPxPerZoomLevel:80,maxBounds:MAP_BOUNDS,maxBoundsViscosity:.65,dragging:true,touchZoom:true,scrollWheelZoom:true,doubleClickZoom:true,boxZoom:false,keyboard:true,bounceAtZoomLimits:false}).setView(center,13);
-map.createPane("routePane");
-map.getPane("routePane").style.zIndex=350;
-L.control.zoom({position:"bottomright"}).addTo(map);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:19,keepBuffer:4,updateWhenIdle:false,updateWhenZooming:true}).addTo(map);
-markerLayer=L.layerGroup().addTo(map);
-drawMarkers();
-buildList();
-const legend=L.control({position:"bottomleft"});
-legend.onAdd=function(){
-const div=L.DomUtil.create("div","map-legend");
-div.innerHTML='<div class="map-legend-title">Legenda</div><div class="map-legend-row"><span class="legend-symbol history"></span>Historia</div><div class="map-legend-row"><span class="legend-symbol architecture"></span>Architektura</div><div class="map-legend-row"><span class="legend-symbol nature"></span>Odpoczynek</div><div class="map-legend-row"><span class="legend-symbol andriolli"></span>Miejsca Andriollego</div><div class="map-legend-row"><span class="legend-symbol start"></span>Początek trasy</div>';
-L.DomEvent.disableClickPropagation(div);
-L.DomEvent.disableScrollPropagation(div);
-return div;
-};
-legend.addTo(map);
-legend.getContainer().classList.add("legend-control");
-map.setMaxBounds(MAP_BOUNDS);
-map.on("zoomend",()=>map.invalidateSize({pan:false}));
-}
-function toggleLegend(){
-const layout=document.querySelector(".map-layout");
-const button=document.getElementById("legend-toggle");
-const opening=!layout.classList.contains("legend-open");
-layout.classList.toggle("legend-open",opening);
-button.setAttribute("aria-expanded",String(opening));
-button.textContent=opening?"Ukryj legendę":"Legenda";
-}
-function buildList(){
-const list=document.getElementById("stop-list");
-list.innerHTML="";
-routeStopOrder.forEach((stopIndex,position)=>{
-const s=stops[stopIndex];
-const b=document.createElement("button");
-b.className="stop";
-b.innerHTML='<span class="stop-no">'+(position+1)+'</span><span><span class="stop-name"></span><span class="stop-subtitle"></span></span>';
-b.querySelector(".stop-name").textContent=s.name;
-b.querySelector(".stop-subtitle").textContent=s.creative||"";
-b.addEventListener("click",()=>openStop(stopIndex));
-list.append(b);
-});
-}
-function toggleRoutePanel(){
-const p=document.getElementById("route-panel");
-const opening=!p.classList.contains("open");
-p.classList.toggle("open",opening);
-document.querySelector(".map-layout").classList.toggle("panel-open",opening);
-}
-function closeRoutePanel(){
-document.getElementById("route-panel").classList.remove("open");
-document.querySelector(".map-layout").classList.remove("panel-open");
-}
-function setRouteStatus(message,visible=true){
-const status=document.getElementById("route-status");
-status.textContent=message;
-status.style.display=visible?"block":"none";
-}
-function setRouteButtonsDisabled(disabled){
-document.getElementById("walk-route-btn").disabled=disabled;
-document.getElementById("car-route-btn").disabled=disabled;
-}
-function clearRoute(){
-if(routeLine&&map)map.removeLayer(routeLine);
-if(routeOutline&&map)map.removeLayer(routeOutline);
-routeLine=null;
-routeOutline=null;
-routeGeometry=null;
-if(routeAnimationFrame){
-cancelAnimationFrame(routeAnimationFrame);
-routeAnimationFrame=null;
-}
-}
-function showRoute(mode){
-if(activeRouteMode===mode){
-activeRouteMode=null;
-routeRequestId++;
-setRouteButtonsDisabled(false);
-document.getElementById("walk-route-btn").classList.remove("active");
-document.getElementById("car-route-btn").classList.remove("active");
-document.getElementById("walk-route-btn").setAttribute("aria-pressed","false");
-document.getElementById("car-route-btn").setAttribute("aria-pressed","false");
-clearRoute();
-setRouteStatus("",false);
-return;
-}
-activeRouteMode=mode;
-document.getElementById("walk-route-btn").classList.toggle("active",mode==="foot");
-document.getElementById("car-route-btn").classList.toggle("active",mode==="car");
-document.getElementById("walk-route-btn").setAttribute("aria-pressed",String(mode==="foot"));
-document.getElementById("car-route-btn").setAttribute("aria-pressed",String(mode==="car"));
-drawRoute(mode);
-}
-function getRouteCost(order,matrix){
-let total=0;
-for(let i=1;i<order.length;i++){
-const distance=matrix[order[i-1]][order[i]];
-if(!Number.isFinite(distance))return Infinity;
-total+=distance;
-}
-return total;
-}
-function optimizeRouteOrder(matrix){
-const count=stops.length;
-const start=0;
-const finish=8;
-const remaining=new Set(Array.from({length:count},(_,i)=>i).filter(i=>i!==start&&i!==finish));
-const order=[start];
-let current=start;
-while(remaining.size){
-let nearest=null;
-let nearestDistance=Infinity;
-for(const candidate of remaining){
-const distance=matrix[current][candidate];
-if(Number.isFinite(distance)&&distance<nearestDistance){
-nearestDistance=distance;
-nearest=candidate;
-}
-}
-if(nearest===null)throw new Error("Nie można połączyć wszystkich punktów trasą.");
-order.push(nearest);
-remaining.delete(nearest);
-current=nearest;
-}
-order.push(finish);
-let improved=true;
-let passes=0;
-while(improved&&passes<100){
-improved=false;
-passes++;
-let bestCost=getRouteCost(order,matrix);
-for(let i=1;i<order.length-2;i++){
-for(let j=i+1;j<order.length-1;j++){
-const candidate=order.slice();
-const reversed=candidate.slice(i,j+1).reverse();
-candidate.splice(i,j-i+1,...reversed);
-const cost=getRouteCost(candidate,matrix);
-if(cost+0.5<bestCost){
-order.splice(0,order.length,...candidate);
-bestCost=cost;
-improved=true;
-}
-}
-}
-}
-return order;
-}
-async function drawRoute(mode){
-const requestId=++routeRequestId;
-clearRoute();
-setRouteButtonsDisabled(true);
-setRouteStatus(mode==="foot"?"Obliczanie optymalnej ttrasy pieszo…":"Obliczanie optymalnej trasy samochodem…");
-const controller=new AbortController();
-const timeout=setTimeout(()=>controller.abort(),30000);
-try{
-const coordinates=stops.map(stop=>stop.coords[1]+","+stop.coords[0]).join(";");
-const service=mode==="foot"?"https://routing.openstreetmap.de/routed-foot/":"https://routing.openstreetmap.de/routed-car/";
-const tableUrl=service+"table/v1/driving/"+coordinates+"?annotations=distance,duration";
-const tableResponse=await fetch(tableUrl,{signal:controller.signal});
-if(!tableResponse.ok)throw new Error("Nie udało się pobrać odległości między punktami.");
-const tableData=await tableResponse.json();
-if(requestId!==routeRequestId)return;
-if(tableData.code!=="Ok"||!Array.isArray(tableData.distances)||tableData.distances.length!==stops.length)throw new Error("Serwer nie zwrócił pełnej tabeli odległości.");
-const order=optimizeRouteOrder(tableData.distances);
-if(order.length!==stops.length||new Set(order).size!==stops.length||order[0]!==0||order[order.length-1]!==8)throw new Error("Nie udało się ustalić prawidłowej kolejności punktów.");
-const orderedCoordinates=order.map(index=>stops[index].coords[1]+","+stops[index].coords[0]).join(";");
-setRouteStatus("Punkty uporządkowane. Wyznaczanie przebiegu trasy…");
-const routeUrl=service+"route/v1/driving/"+orderedCoordinates+"?overview=full&geometries=geojson&steps=false";
-const routeResponse=await fetch(routeUrl,{signal:controller.signal});
-if(!routeResponse.ok)throw new Error("Nie udało się pobrać przebiegu trasy.");
-const routeData=await routeResponse.json();
-if(requestId!==routeRequestId)return;
-if(routeData.code!=="Ok"||!routeData.routes||!routeData.routes.length)throw new Error("Serwer nie zwrócił przebiegu trasy.");
-const route=routeData.routes[0];
-if(!route.geometry||!Array.isArray(route.geometry.coordinates)||!Number.isFinite(route.duration)||!Number.isFinite(route.distance))throw new Error("Serwer nie zwrócił pełnych danych trasy.");
-routeStopOrder=order;
-buildList();
-drawMarkers();
-routeGeometry=route.geometry.coordinates.map(point=>[point[1],point[0]]);
-const distance=(route.distance/1000).toFixed(1);
-const minutes=Math.round(route.duration/60);
-const hours=Math.floor(minutes/60);
-const remainingMinutes=minutes%60;
-const durationText=hours>0?hours+" godz. "+remainingMinutes+" min":minutes+" min";
-setRouteStatus((mode==="foot"?"Trasa piesza":"Trasa samochodowa")+" - " + " ok " +distance+" km + "+durationText,true);
-animateRoute(routeGeometry,mode);
-fitRoute();
-}catch(error){
-if(requestId!==routeRequestId)return;
-console.error("Błąd wyznaczania trasy:",error);
-if(error.name==="AbortError"){
-setRouteStatus("Serwer nie odpowiedział w ciągu 30 sekund. Spróbuj ponownie.",true);
-}else{
-setRouteStatus("Nie udało się obliczyć trasy. Sprawdź połączenie i spróbuj ponownie.",true);
-}
-}finally{
-clearTimeout(timeout);
-if(requestId===routeRequestId)setRouteButtonsDisabled(false);
-}
-}
-function animateRoute(coords,mode){
-if(routeAnimationFrame)cancelAnimationFrame(routeAnimationFrame);
-if(routeLine)map.removeLayer(routeLine);
-if(routeOutline)map.removeLayer(routeOutline);
-const color=mode==="foot"?"#762f42":"#536b78";
-routeOutline=L.polyline([],{color:"#fffdf7",weight:9,opacity:.9,lineCap:"round",lineJoin:"round"}).addTo(map);
-routeLine=L.polyline([],{color,weight:5,opacity:.95,lineCap:"round",lineJoin:"round",dashArray:mode==="foot"?"":"10 8"}).addTo(map);
-const points=coords.map(point=>L.latLng(point));
-const lengths=[0];
-for(let i=1;i<points.length;i++)lengths.push(lengths[i-1]+points[i-1].distanceTo(points[i]));
-const totalLength=lengths[lengths.length-1];
-if(!totalLength){
-routeLine.setLatLngs(points);
-routeOutline.setLatLngs(points);
-return;
-}
-const duration=3000;
-let startTime=null;
-function frame(time){
-if(!startTime)startTime=time;
-const progress=Math.min((time-startTime)/duration,1);
-const targetDistance=totalLength*progress;
-let low=0,high=lengths.length-1;
-while(low<high){
-const middle=Math.floor((low+high)/2);
-if(lengths[middle]<targetDistance)low=middle+1;
-else high=middle;
-}
-const index=Math.max(1,low);
-const previousDistance=lengths[index-1];
-const segmentLength=lengths[index]-previousDistance;
-const segmentProgress=segmentLength===0?0:(targetDistance-previousDistance)/segmentLength;
-const a=points[index-1],b=points[index];
-const current=L.latLng(a.lat+(b.lat-a.lat)*segmentProgress,a.lng+(b.lng-a.lng)*segmentProgress);
-const visiblePoints=points.slice(0,index);
-visiblePoints.push(current);
-routeLine.setLatLngs(visiblePoints);
-routeOutline.setLatLngs(visiblePoints);
-if(progress<1){
-routeAnimationFrame=requestAnimationFrame(frame);
-}else{
-routeLine.setLatLngs(points);
-routeOutline.setLatLngs(points);
-routeAnimationFrame=null;
-}
-}
-routeAnimationFrame=requestAnimationFrame(frame);
-}
-function fitRoute(){
-if(!map)return;
-const points=routeGeometry||routeStopOrder.map(i=>stops[i].coords);
-map.fitBounds(L.latLngBounds(points).pad(.12),{animate:true,duration:.6});
-}
-function addImage(c,s){
-let src=s.imageUrl||(s.image?"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent(s.image):"");
-if(!src)return;
-const f=document.createElement("figure");
-f.className="stop-photo";
-const im=document.createElement("img");
-im.loading="eager";
-im.decoding="async";
-im.alt=s.alt||s.name;
-im.referrerPolicy="no-referrer";
-im.src=src;
-im.onerror=()=>{
-f.classList.add("image-unavailable");
-im.removeAttribute("src");
-};
-const cap=document.createElement("figcaption");
-cap.append(document.createTextNode((s.caption||"")+" "));
-if(s.page){
-const a=document.createElement("a");
-a.href=s.page;
-a.target="_blank";
-a.rel="noopener noreferrer";
-a.textContent="Źródło zdjęcia";
-cap.append(a);
-}
-f.append(im,cap);
-c.append(f);
-}
-function addCompare(c){
-const box=document.createElement("section");
-box.className="photo-comparison";
-const h=document.createElement("h3");
-h.textContent="Fotografie dworca";
-const grid=document.createElement("div");
-grid.className="comparison-grid";
-[["Grupa_kolejarzy_na_stacji_Otwock_1932.jpg","ARCHIWUM 1932","Dawna fotografia stacji kolejowej w Otwocku."],["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRBTHy80qnAIWJOYiwwjmV2F_BbYzJVNi5bBOPmEMQqg&s=10","WSPÓŁCZEŚNIE","Współczesny widok stacji kolejowej w Otwocku."]].forEach(([file,label,desc])=>{
-const f=document.createElement("figure"),im=document.createElement("img"),cap=document.createElement("figcaption"),b=document.createElement("strong"),p=document.createElement("p");
-im.src=file.startsWith("https://")?file:"https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent(file);
-im.alt=desc;
-im.loading="eager";
-im.decoding="async";
-im.referrerPolicy="no-referrer";
-im.onerror=()=>{
-im.style.display="none";
-p.textContent=desc+" Zdjęcie jest chwilowo niedostępne.";
-};
-b.textContent=label;
-p.textContent=desc;
-cap.append(b,p);
-f.append(im,cap);
-grid.append(f);
-});
-box.append(h,grid);
-c.append(box);
-}
-function addInteractive(c,data){
-const box=document.createElement("section");
-box.className="interactive-center";
-const heading=document.createElement("h3");
-heading.textContent=data.title;
-const intro=document.createElement("p");
-intro.className="intro";
-intro.textContent=data.intro;
-box.append(heading,intro);
-data.categories.forEach(item=>{
+let current=0;
+let points=0;
+let answered=false;
+const questionNumber=document.getElementById("question-number");
+const questionEl=document.getElementById("question");
+const answersEl=document.getElementById("answers");
+const feedbackEl=document.getElementById("feedback");
+const nextBtn=document.getElementById("next");
+const progress=document.getElementById("progress");
+const card=document.getElementById("question-card");
+const result=document.getElementById("result");
+function renderQuestion(){
+answered=false;
+const item=questions[current];
+questionNumber.textContent=`Pytanie ${current+1} z ${questions.length}`;
+questionEl.textContent=item.q;
+answersEl.innerHTML="";
+feedbackEl.textContent="";
+feedbackEl.classList.remove("show");
+nextBtn.hidden=true;
+nextBtn.textContent=current===questions.length-1?"Zobacz wynik →":"Następne pytanie →";
+progress.style.width=`${(current/questions.length)*100}%`;
+item.a.forEach((answer,index)=>{
 const button=document.createElement("button");
-button.type="button";
-button.className="center-category";
-button.setAttribute("aria-expanded","false");
-const label=document.createElement("span");
-label.textContent=item.name;
-const arrow=document.createElement("span");
-arrow.className="arrow";
-arrow.textContent="+";
-button.append(label,arrow);
-const content=document.createElement("div");
-content.className="center-category-content";
-content.textContent=item.text;
-button.addEventListener("click",()=>{
-const opening=button.getAttribute("aria-expanded")!=="true";
-button.setAttribute("aria-expanded",String(opening));
-content.classList.toggle("open",opening);
-arrow.textContent=opening?"−":"+";
+button.className="answer";
+button.textContent=`${String.fromCharCode(65+index)}. ${answer}`;
+button.addEventListener("click",()=>chooseAnswer(index));
+answersEl.appendChild(button);
 });
-box.append(button,content);
+}
+function chooseAnswer(index){
+if(answered)return;
+answered=true;
+const item=questions[current];
+const buttons=[...answersEl.querySelectorAll(".answer")];
+buttons.forEach((button,i)=>{
+button.disabled=true;
+if(i===item.correct)button.classList.add("correct");
+if(i===index&&index!==item.correct)button.classList.add("wrong");
 });
-c.append(box);
+points+=index===item.correct?1:0;
+feedbackEl.textContent=item.info;
+feedbackEl.classList.add("show");
+nextBtn.hidden=false;
 }
-function addGurewiczPuzzle(c){
-const box=document.createElement("section");
-box.className="gurewicz-puzzle";
-const heading=document.createElement("h3");
-heading.textContent="Poskładaj Gurewicza";
-const intro=document.createElement("p");
-intro.className="gp-intro";
-intro.textContent="Zobacz, czy uda ci się ułożyć zdjęcie pensjonatu.";
-const imageUrl="https://commons.wikimedia.org/wiki/Special:FilePath/"+encodeURIComponent("Pensjonat_abrama_gurewicza_przed_1929.jpg");
-const preview=document.createElement("img");
-preview.className="gp-preview";
-preview.src=imageUrl;
-preview.alt="Pensjonat Abrama Gurewicza przed 1929 rokiem";
-preview.loading="lazy";
-const start=document.createElement("button");
-start.type="button";
-start.className="gp-button";
-start.textContent="Poskładaj Gurewicza";
-const board=document.createElement("div");
-board.className="gp-board";
-board.hidden=true;
-board.setAttribute("aria-label","Układanka ze zdjęcia pensjonatu");
-const message=document.createElement("p");
-message.className="gp-message";
-message.setAttribute("aria-live","polite");
-const count=document.createElement("p");
-count.className="gp-count";
-count.hidden=true;
-let order=[],selected=null,mistakes=0,finished=false,errorIndex=0;
-function correctCount(){
-return order.filter((piece,index)=>piece===index).length;
-}
-function updateCount(){
-count.textContent="Dobrze ułożone fragmenty: "+correctCount()+"/9";
-}
-function shuffle(){
-order=[0,1,2,3,4,5,6,7,8];
-for(let i=order.length-1;i>0;i--){
-const j=Math.floor(Math.random()*(i+1));
-[order[i],order[j]]=[order[j],order[i]];
-}
-if(order.every((piece,index)=>piece===index))[order[0],order[1]]=[order[1],order[0]];
-}
-function drawBoard(animate=false){
-board.replaceChildren();
-order.forEach((piece,position)=>{
-const tile=document.createElement("button");
-tile.type="button";
-tile.className="gp-tile";
-tile.setAttribute("aria-label","Fragment "+(position+1));
-tile.setAttribute("aria-pressed",String(selected===position));
-const x=piece%3;
-const y=Math.floor(piece/3);
-tile.style.backgroundImage='url("'+imageUrl+'")';
-tile.style.backgroundSize="300% 300%";
-tile.style.backgroundPosition=(x*50)+"% "+(y*50)+"%";
-if(selected===position)tile.classList.add("gp-selected");
-tile.addEventListener("click",()=>{
-if(finished)return;
-if(selected===null){
-selected=position;
-drawBoard();
-return;
-}
-if(selected===position){
-selected=null;
-drawBoard();
-return;
-}
-const first=selected;
-const before=correctCount();
-[order[first],order[position]]=[order[position],order[first]];
-selected=null;
-const after=correctCount();
-if(after<=before){
-message.textContent=errorMessages[errorIndex%errorMessages.length];
-errorIndex++;
-mistakes++;
+nextBtn.addEventListener("click",()=>{
+current++;
+if(current<questions.length){
+renderQuestion();
 }else{
-message.textContent="";
-}
-drawBoard();
-if(correctCount()===9){
-finished=true;
-board.querySelectorAll("button").forEach(button=>button.disabled=true);
-message.textContent=mistakes===0?"Brawo! Znasz pensjonat Gurewicza na wylot!":"Udało się! Gurewicz znów jest w całości.";
-start.hidden=false;
-start.textContent="Ułóż jeszcze raz";
-}
-updateCount();
-});
-board.append(tile);
-});
-if(animate){
-board.classList.remove("gp-breaking");
-void board.offsetWidth;
-board.classList.add("gp-breaking");
-setTimeout(()=>board.classList.remove("gp-breaking"),650);
-}
-updateCount();
-}
-const errorMessages=["Nie tym razem. Spróbuj jeszcze raz.","Ten fragment chyba pasuje gdzie indziej.","Przyjrzyj się dokładniej.","Jeszcze nie tak. Spróbuj zamienić inne fragmenty.","Pensjonat nadal jest pomieszany!"];
-start.addEventListener("click",()=>{
-mistakes=0;
-errorIndex=0;
-selected=null;
-finished=false;
-shuffle();
-board.hidden=false;
-count.hidden=false;
-preview.hidden=true;
-intro.textContent="Kliknij dwa fragmenty, aby zamienić je miejscami.";
-message.textContent="";
-start.textContent="Wymieszaj ponownie";
-drawBoard(true);
-});
-preview.onerror=()=>{
-preview.style.display="none";
-};
-box.append(heading,intro,preview,start,board,count,message);
-c.append(box);
-}
-function addFact(c,data){
-const box=document.createElement("section");
-box.className="fact-box";
-const heading=document.createElement("h3");
-heading.textContent=data.title||"Ciekawostka";
-const paragraph=document.createElement("p");
-paragraph.textContent=data.text;
-box.append(heading,paragraph);
-c.append(box);
-}
-function openStop(i){
-currentIndex=i;
-const s=stops[i];
-document.getElementById("story-kicker").textContent=s.category?String(routeStopOrder.indexOf(i)+1).padStart(2,"0")+" · "+s.category:"";
-document.getElementById("story-title").textContent=s.name;
-document.getElementById("story-creative").textContent=s.creative||"";
-document.getElementById("story-creative").style.display=s.creative?"block":"none";
-document.getElementById("story-kicker").style.display=s.category?"inline":"none";
-const c=document.getElementById("story-content");
-c.innerHTML="";
-addImage(c,s);
-(s.p||[]).forEach(t=>{
-const p=document.createElement("p");
-p.textContent=t;
-c.append(p);
-});
-if(s.fact)addFact(c,s.fact);
-if(i===0)addCompare(c);
-if(i===2)addGurewiczPuzzle(c);
-if(s.interactive)addInteractive(c,s.interactive);
-if(s.location){
-const loc=document.createElement("div");
-loc.className="story-location";
-loc.textContent="Miejsce: "+s.location;
-c.append(loc);
-}
-document.getElementById("story-count").textContent=(routeStopOrder.indexOf(i)+1)+" / "+routeStopOrder.length;
-document.querySelector(".story-nav button:last-child").textContent=routeStopOrder.indexOf(i)===routeStopOrder.length-1?"Zakończ trasę →":"Następny →";
-document.getElementById("story-card").style.display="flex";
-c.scrollTop=0;
-document.querySelectorAll(".stop").forEach((b,j)=>b.classList.toggle("active",routeStopOrder[j]===i));
-closeRoutePanel();
-map.flyTo(s.coords,Math.max(map.getZoom(),15),{duration:.65});
-}
-function closeStory(){
-document.getElementById("story-card").style.display="none";
-}
-function nextStop(){
-const position=routeStopOrder.indexOf(currentIndex);
-if(position===routeStopOrder.length-1){
-showRouteFinish();
-return;
-}
-openStop(routeStopOrder[position+1]);
-}
-function showRouteFinish(){
-closeStory();
-const quizUrl="https://wieliczkoantonia-hash.github.io/sladami-andriollego-quizz/";
-const qrUrl="https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=8&data="+encodeURIComponent(quizUrl);
-document.getElementById("finish-qr").src=qrUrl;
-document.getElementById("route-finish").classList.add("visible");
-}
-function closeRouteFinish(){
-document.getElementById("route-finish").classList.remove("visible");
-if(currentIndex!==null&&currentIndex!==undefined)openStop(currentIndex);
-}
-function previousStop(){
-const position=routeStopOrder.indexOf(currentIndex);
-openStop(routeStopOrder[(position-1+routeStopOrder.length)%routeStopOrder.length]);
-}
-window.addEventListener("pageshow",()=>{
-if(map&&document.getElementById("map-page").style.display!=="none"){
-setTimeout(()=>map.invalidateSize(),100);
+card.style.display="none";
+result.classList.add("show");
+progress.style.width="100%";
+document.getElementById("score").textContent=`${points}/10`;
+const titles=["Otwock nie ma już przed Tobą wielu tajemnic!","Całkiem nieźle! Widać, że uważnie zwiedzałeś!","Coś już zostało w pamięci, ale Otwock ma jeszcze kilka sekretów.","Chyba nie wszystkie przystanki udało się zapamiętać.","Wygląda na to, że przydałaby się jeszcze jedna wycieczka!"];
+const texts=["Komplet punktów. Wszystko zapamiętane!","Naprawdę dobrze znasz historię miasta.","Większość historii została w pamięci.","Trochę już wiesz, ale kilka rzeczy umknęło.","Otwock chyba ma przed Tobą jeszcze sporo do odkrycia."];
+let tier=points===10?0:points>=8?1:points>=6?2:points>=3?3:4;
+document.getElementById("result-title").textContent=titles[tier];
+document.getElementById("result-text").textContent=texts[tier];
 }
 });
+document.getElementById("restart").addEventListener("click",()=>{
+current=0;
+points=0;
+card.style.display="";
+result.classList.remove("show");
+renderQuestion();
+});
+renderQuestion();
 </script>
 </body>
 </html>
